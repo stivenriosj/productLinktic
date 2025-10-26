@@ -1,4 +1,4 @@
-package com.co.service.product.controller;
+package com.co.service.product.app.controller;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -20,10 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.co.service.product.jsonapi.JsonApiData;
-import com.co.service.product.jsonapi.JsonApiResponse;
-import com.co.service.product.model.Product;
-import com.co.service.product.productservice.ProductService;
+import com.co.service.product.app.model.Product;
+import com.co.service.product.app.jsonapi.*;
+import com.co.service.product.app.productservice.ProductService;
 
 @RestController
 @RequestMapping("/api/products")
@@ -40,30 +39,31 @@ public class ProductController {
   }
 
  
-  private ResponseEntity<JsonApiResponse> single(Product p){
-	 var data = new JsonApiData<>("products", p.getId().toString(), toAttributes(p));
-     return ResponseEntity.ok(new JsonApiResponse<>(Map.of("data", data)));
+  private ResponseEntity<Map<String,Object>> single(Product p){
+     var data = new JsonApiData<>("products", p.getId().toString(), toAttributes(p));
+     return ResponseEntity.ok(Map.of("data", data));
   }
 
-  @PostMapping
-  public ResponseEntity<ResponseEntity<JsonApiResponse>> create(@RequestBody Map<String,Object> payload){
-	Map<String,Object> attributes = (Map<String, Object>)payload.getOrDefault("attributes", payload);
-    Product p = new Product();
-    p.setName((String)attributes.get("name"));
-    p.setDescription((String)attributes.get("description"));
-    p.setPrice(new BigDecimal(attributes.get("price").toString()));
-    Product saved = svc.create(p);
-    return ResponseEntity.status(HttpStatus.CREATED).body(single(saved));
+  @PostMapping(produces = "application/json")
+  public ResponseEntity<Map<String,Object>> create(@RequestBody Map<String,Object> payload) {
+      Map<String,Object> attributes = (Map<String, Object>)payload.getOrDefault("attributes", payload);
+      Product p = new Product();
+      p.setName((String)attributes.get("name"));
+      p.setDescription((String)attributes.get("description"));
+      p.setPrice(new BigDecimal(attributes.get("price").toString()));
+      Product saved = svc.create(p);
+      return ResponseEntity.status(HttpStatus.CREATED).body(single(saved).getBody());
   }
+  
 
-  @GetMapping("/{id}")
-  public ResponseEntity<JsonApiResponse> get(@PathVariable Long id){
+  @GetMapping(value = "/{id}", produces = "application/json")
+  public ResponseEntity<Map<String,Object>> get(@PathVariable Long id){
     Product p = svc.findById(id).orElseThrow();
     return single(p);
   }
 
-  @PatchMapping("/{id}")
-  public ResponseEntity<JsonApiResponse> update(@PathVariable Long id, @RequestBody Map<String,Object> payload){
+  @PatchMapping(value = "/{id}", produces = "application/json")
+  public ResponseEntity<Map<String,Object>> update(@PathVariable Long id, @RequestBody Map<String,Object> payload){
 	Map<String,Object> attributes = (Map<String, Object>)payload.getOrDefault("attributes", payload);
     Product u = new Product();
     u.setName((String)attributes.get("name"));
@@ -80,14 +80,14 @@ public class ProductController {
   }
 
   @SuppressWarnings("unchecked")
-@GetMapping
-  public ResponseEntity<JsonApiResponse> list(@RequestParam(defaultValue="0") int page,
+  @GetMapping(produces = "application/json")
+  public ResponseEntity<Map<String,Object>> list(@RequestParam(defaultValue="0") int page,
                                               @RequestParam(defaultValue="10") int size){
     Page<Product> p = svc.list(PageRequest.of(page,size));
 	List<Object> data = p.stream()
       .map(prod -> new JsonApiData("products", prod.getId().toString(), toAttributes(prod)))
       .collect(Collectors.toList());
     Map<String,Object> meta = Map.of("totalElements", p.getTotalElements(), "totalPages", p.getTotalPages());
-    return ResponseEntity.ok(new JsonApiResponse(Map.of("data", data, "meta", meta)));
+    return ResponseEntity.ok(Map.of("data", data, "meta", meta));
   }
 }

@@ -1,4 +1,4 @@
-package com.co.service.product.dto;
+package com.co.service.product.app.dto;
 
 import java.util.Map;
 

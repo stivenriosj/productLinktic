@@ -1,11 +1,11 @@
-package com.co.service.product.productservice;
+package com.co.service.product.app.productservice;
 
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.co.service.product.model.Product;
+import com.co.service.product.app.model.Product;
 
 public interface ProductService {
 

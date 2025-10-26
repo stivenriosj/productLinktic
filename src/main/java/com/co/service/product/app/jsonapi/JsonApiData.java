@@ -1,4 +1,4 @@
-package com.co.service.product.jsonapi;
+package com.co.service.product.app.jsonapi;
 
 import java.util.Map;
 

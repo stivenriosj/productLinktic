@@ -1,4 +1,4 @@
-package com.co.service.product.productimple;
+package com.co.service.product.app.productimple;
 
 import java.util.Optional;
 
@@ -6,9 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.co.service.product.helpers.ProductRepository;
-import com.co.service.product.model.Product;
-import com.co.service.product.productservice.ProductService;
+import com.co.service.product.app.model.Product;
+import com.co.service.product.app.helpers.ProductRepository;
+import com.co.service.product.app.productservice.ProductService;
 
 @Service
 public class ProductServiceImple implements ProductService{
@@ -40,6 +40,9 @@ public class ProductServiceImple implements ProductService{
 	      return repo.save(existing);
 	  }
 	  public void delete(Long id){ 
+		  if(!repo.existsById(id)){
+			  throw new java.util.NoSuchElementException("Producto con id " + id + " no encontrado");
+		  }
 		  repo.deleteById(id); 
 	  }
 }
