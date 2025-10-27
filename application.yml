@@ -1,0 +1,21 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: test1234
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+flyway:
+  enabled: true
+  locations: classpath:localhost/postgres
+security:
+  api-key: ${PRODUCTS_API_KEY:prod-secret}
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
